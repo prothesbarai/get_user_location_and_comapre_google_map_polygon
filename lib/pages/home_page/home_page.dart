@@ -132,9 +132,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {_isLoading = true;});
     try{
 
-      Position position = await Geolocator.getCurrentPosition(
-          locationSettings: LocationSettings(accuracy: LocationAccuracy.high,distanceFilter: 100)
-      );
+      Position position = await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100));
 
 
 
@@ -272,3 +270,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+
+
+
+
