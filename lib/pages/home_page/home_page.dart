@@ -225,16 +225,6 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-
-
-
-
-
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
 
@@ -251,9 +241,9 @@ class _HomePageState extends State<HomePage> {
               children: [
 
 
-                Text(_message),
+                Text(_message,style: TextStyle(fontSize: 20),),
                 SizedBox(height: 100,),
-                Text("${updatedLocation?.name}",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.deepPurple),),
+                Text("${updatedLocation?.name}",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.blue),),
 
               ],
             ),
