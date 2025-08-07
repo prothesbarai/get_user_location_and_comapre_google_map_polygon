@@ -6,9 +6,8 @@ import 'package:locationcomparewithcoordinates/pages/widgets/custom_app_bar.dart
 import 'package:locationcomparewithcoordinates/pages/widgets/custom_drawer.dart';
 import 'package:turf/along.dart' as turf;
 import 'package:turf/boolean.dart' hide Position;
-
-
 import '../../hive_location_store_model/hive_location_store_model.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,10 +23,6 @@ class _HomePageState extends State<HomePage> {
   bool _isLoading = false;
   late Box ifStoreLocation;
   late Box locationBox;
-
-
-
-
 
 
 
@@ -133,8 +128,6 @@ class _HomePageState extends State<HomePage> {
     try{
 
       Position position = await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100));
-
-
 
       final dhanmondiPolygon = turf.Polygon(coordinates: [
         [
