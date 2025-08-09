@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
-import 'package:locationcomparewithcoordinates/pages/widgets/custom_app_bar.dart';
-import 'package:locationcomparewithcoordinates/pages/widgets/custom_drawer.dart';
 import 'package:turf/along.dart' as turf;
 import 'package:turf/boolean.dart' hide Position;
 import '../../hive_location_store_model/hive_location_store_model.dart';
+import '../../widgets/custom_app_bar.dart';
+import '../../widgets/custom_drawer.dart';
+import '../../widgets/polygons.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -19,7 +20,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   String _message = "Loading...";
-  String locationName = "";
   bool _isLoading = false;
   late Box ifStoreLocation;
   late Box locationBox;
@@ -37,8 +37,10 @@ class _HomePageState extends State<HomePage> {
   Future<void> checkFirstTimeAndSetLocation() async{
     ifStoreLocation = Hive.box("IFStoreLocation");
     locationBox = Hive.box<HiveLocationStoreModel>("StoreUserLocation");
+
     bool permissionGranted = await handelLocationPermission();
     if(!permissionGranted) return;
+
     bool isFirstTime = ifStoreLocation.get('first_time',defaultValue: true);
     if(isFirstTime){
       await fetchLocation();
@@ -91,6 +93,7 @@ class _HomePageState extends State<HomePage> {
       return false;
     }
     LocationPermission permission = await Geolocator.checkPermission();
+
     if(permission == LocationPermission.denied){
       permission = await Geolocator.requestPermission();
       if(permission == LocationPermission.denied){
@@ -128,60 +131,9 @@ class _HomePageState extends State<HomePage> {
     try{
 
       Position position = await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100));
-
-      final dhanmondiPolygon = turf.Polygon(coordinates: [
-        [
-          turf.Position(90.37644105341138, 23.73814930923713),
-          turf.Position(90.38324004130533, 23.739415608803697),
-          turf.Position(90.3820332945362, 23.744642332072672),
-          turf.Position(90.37526373949032, 23.75633434526398),
-          turf.Position(90.36767006469995, 23.75172770964238),
-          turf.Position(90.37644105341138, 23.73814930923713),
-        ]
-      ]);
-
-
-      final banashreePolygon = turf.Polygon(coordinates: [
-        [
-          turf.Position(90.42435438080707, 23.765310646915452),
-          turf.Position(90.42435438080707, 23.764371360192087),
-          turf.Position(90.42528835891386, 23.764371360192087),
-          turf.Position(90.42528835891386, 23.765310646915452),
-          turf.Position(90.42435438080707, 23.765310646915452),
-        ]
-      ]);
-
-
-      final isSouthBanashreePolygon = turf.Polygon(coordinates: [
-        [
-          turf.Position(90.44043052329232, 23.75945393989916),
-          turf.Position(90.44043052329232, 23.756992752880237),
-          turf.Position(90.44435298937998, 23.756992752880237),
-          turf.Position(90.44435298937998, 23.75945393989916),
-          turf.Position(90.44043052329232, 23.75945393989916),
-        ]
-      ]);
-
-
-
       final userPosition = turf.Position(position.longitude, position.latitude);
-      bool inDhanmondi = booleanPointInPolygon(userPosition, dhanmondiPolygon);
-      bool inBanashree = booleanPointInPolygon(userPosition, banashreePolygon);
-      bool isSouthBanashree = booleanPointInPolygon(userPosition, isSouthBanashreePolygon);
 
-
-
-
-      if (inDhanmondi) {
-        setState(() {locationName = "Dhanmondi";});
-      } else if (inBanashree) {
-        locationName = "Banashree";
-      }else if (isSouthBanashree) {
-        locationName = "Prothes House :\n South Banashree";
-      }
-      else {
-        setState(() {locationName = "User is in neither Dhanmondi nor Banashree";});
-      }
+      String locationName = getLocationName(userPosition);
 
 
       List<Placemark> placeMark = await placemarkFromCoordinates(position.latitude, position.longitude);
@@ -225,6 +177,49 @@ class _HomePageState extends State<HomePage> {
   }
 
 
+  /// >>  If You Use Else If
+  /*String getLocationName(turf.Position userPosition) {
+    if (booleanPointInPolygon(userPosition, dhanmondiPolygon)) {
+      return "Dhanmondi";
+    } else if (booleanPointInPolygon(userPosition, banashreePolygon)) {
+      return "Banashree";
+    } else if (booleanPointInPolygon(userPosition, southBanashreePolygon)) {
+      return "South Banashree";
+    } else if (booleanPointInPolygon(userPosition, mirpurPolygon)) {
+      return "Mirpur";
+    } else if (booleanPointInPolygon(userPosition, baddaPolygon)) {
+      return "Badda";
+    } else {
+      return "Location Not Found";
+    }
+  }*/
+
+
+
+  /// IF Use Loop >>>>>>>
+  String getLocationName(turf.Position userPosition) {
+    final polygons = [
+      {"name": "Dhanmondi", "polygon": dhanmondiPolygon},
+      {"name": "Banashree", "polygon": banashreePolygon},
+      {"name": "South Banashree", "polygon": southBanashreePolygon},
+      {"name": "Mirpur", "polygon": mirpurPolygon},
+      {"name": "Badda", "polygon": baddaPolygon},
+    ];
+
+    for (final items in polygons) {
+      final String name = items["name"] as String;
+      final turf.GeoJSONObject polygon = items["polygon"] as turf.GeoJSONObject;
+      if (booleanPointInPolygon(userPosition, polygon)) {
+        return name;
+      }
+    }
+    return "Location Not Found";
+  }
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -243,12 +238,19 @@ class _HomePageState extends State<HomePage> {
 
 
                 Text(_message,style: TextStyle(fontSize: 20),),
-                SizedBox(height: 100,),
+                SizedBox(height: 30,),
                 Text("${updatedLocation?.name}",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.blue),),
+
+                SizedBox(height: 20,),
+
+                ElevatedButton(
+                    onPressed: fetchLocation,
+                    child: Text("Update")
+                )
 
               ],
             ),
-          )
+          ),
       ),
 
     );
