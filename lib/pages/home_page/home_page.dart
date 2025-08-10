@@ -181,19 +181,19 @@ class _HomePageState extends State<HomePage> {
 
 
   /// >>  If You Use Else If
-  /*String getLocationName(turf.Position userPosition) {
+  /*Map<String, dynamic> getLocationInfo(turf.Position userPosition) {
     if (booleanPointInPolygon(userPosition, dhanmondiPolygon)) {
-      return "Dhanmondi";
+      return {"name": "Dhanmondi", "locationId": 8,};
     } else if (booleanPointInPolygon(userPosition, banashreePolygon)) {
-      return "Banashree";
+      return {"name": "Banashree", "locationId": 9,};
     } else if (booleanPointInPolygon(userPosition, southBanashreePolygon)) {
-      return "South Banashree";
+      return {"name": "South Banashree", "locationId": 10,};
     } else if (booleanPointInPolygon(userPosition, mirpurPolygon)) {
-      return "Mirpur";
+      return {"name": "Mirpur", "locationId": 11,};
     } else if (booleanPointInPolygon(userPosition, baddaPolygon)) {
-      return "Badda";
+      return {"name": "Badda", "locationId": 12,};
     } else {
-      return "Location Not Found";
+      return {"name": "Out Of Dhaka City", "locationId": 13,};
     }
   }*/
 
