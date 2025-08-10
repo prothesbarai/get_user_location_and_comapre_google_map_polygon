@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
+import 'package:locationcomparewithcoordinates/pages/another_page/another_page.dart';
+import 'package:provider/provider.dart';
 import 'package:turf/along.dart' as turf;
 import 'package:turf/boolean.dart' hide Position;
 import '../../hive_location_store_model/hive_location_store_model.dart';
+import '../../provider/location_provider.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_drawer.dart';
 import '../../widgets/polygons.dart';
@@ -156,6 +159,11 @@ class _HomePageState extends State<HomePage> {
           locationId: locationInfo["locationId"],
       );
       await locationBox.put("store_location", customPlace);
+
+      if(mounted){
+        Provider.of<LocationProvider>(context, listen: false).refreshLocation();
+      }
+
       HiveLocationStoreModel? updatedLocation = locationBox.get("store_location");
       String locationDetails = "Lat : ${updatedLocation?.latitude}   Long : ${updatedLocation?.longitude}\n"
           "Location : \n"
@@ -251,14 +259,27 @@ class _HomePageState extends State<HomePage> {
 
 
                 Text(_message,style: TextStyle(fontSize: 20),),
-                SizedBox(height: 30,),
-                Text("${updatedLocation?.name}\n${updatedLocation?.locationId}",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.blue),textAlign: TextAlign.center,),
-
+                SizedBox(height: 20,),
+                Text("LocationName : ${updatedLocation?.name}\nLocationId : ${updatedLocation?.locationId}",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.blue),textAlign: TextAlign.center,),
                 SizedBox(height: 20,),
 
-                ElevatedButton(
-                    onPressed: fetchLocation,
-                    child: Text("Update")
+                Wrap(
+                  spacing: 8,
+                  children: [
+
+                    ElevatedButton(
+                        onPressed: fetchLocation,
+                        child: Text("Update")
+                    ),
+
+                    ElevatedButton(
+                        onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => AnotherPage(),));
+                        },
+                        child: Text("Next Page")
+                    )
+
+                  ],
                 )
 
               ],
