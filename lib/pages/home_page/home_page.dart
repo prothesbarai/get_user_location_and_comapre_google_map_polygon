@@ -52,17 +52,18 @@ class _HomePageState extends State<HomePage> {
       }else{
         String locationDetails = "Lat : ${savedLocation.latitude}   Long : ${savedLocation.longitude}\n"
             "Location : \n"
-            "${savedLocation.name}\n"
-            "${savedLocation.street}\n"
-            "${savedLocation.administrativeArea}\n"
-            "${savedLocation.subAdministrativeArea}\n"
-            "${savedLocation.thoroughfare}\n"
-            "${savedLocation.subThoroughfare}\n"
-            "${savedLocation.locality}\n"
-            "${savedLocation.subLocality}\n"
-            "${savedLocation.postalCode}\n"
-            "${savedLocation.isoCountryCode}\n"
-            "${savedLocation.country}\n";
+            "Name : ${savedLocation.name}\n"
+            "LocationId : ${savedLocation.locationId}\n"
+            "Street : ${savedLocation.street}\n"
+            "AdministrativeArea : ${savedLocation.administrativeArea}\n"
+            "SubAdministrativeArea : ${savedLocation.subAdministrativeArea}\n"
+            "Thoroughfare : ${savedLocation.thoroughfare}\n"
+            "SubThoroughfare : ${savedLocation.subThoroughfare}\n"
+            "Locality : ${savedLocation.locality}\n"
+            "SubLocality : ${savedLocation.subLocality}\n"
+            "PostalCode : ${savedLocation.postalCode}\n"
+            "IsoCountryCode : ${savedLocation.isoCountryCode}\n"
+            "Country ${savedLocation.country}\n";
         setState(() {_message = "Welcome back!\nYour Current location:\n$locationDetails\n";});
       }
     }
@@ -133,13 +134,13 @@ class _HomePageState extends State<HomePage> {
       Position position = await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100));
       final userPosition = turf.Position(position.longitude, position.latitude);
 
-      String locationName = getLocationName(userPosition);
+      final locationInfo = getLocationInfo(userPosition);
 
 
       List<Placemark> placeMark = await placemarkFromCoordinates(position.latitude, position.longitude);
       Placemark place = placeMark[0];
       final customPlace = HiveLocationStoreModel(
-          name: locationName,
+          name: locationInfo["name"],
           street: place.street,
           administrativeArea: place.administrativeArea,
           subAdministrativeArea: place.subAdministrativeArea,
@@ -151,23 +152,25 @@ class _HomePageState extends State<HomePage> {
           isoCountryCode: place.isoCountryCode,
           country: place.country,
           latitude: position.latitude,
-          longitude: position.longitude
+          longitude: position.longitude,
+          locationId: locationInfo["locationId"],
       );
       await locationBox.put("store_location", customPlace);
       HiveLocationStoreModel? updatedLocation = locationBox.get("store_location");
       String locationDetails = "Lat : ${updatedLocation?.latitude}   Long : ${updatedLocation?.longitude}\n"
           "Location : \n"
-          "${updatedLocation?.name}\n"
-          "${updatedLocation?.street}\n"
-          "${updatedLocation?.administrativeArea}\n"
-          "${updatedLocation?.subAdministrativeArea}\n"
-          "${updatedLocation?.thoroughfare}\n"
-          "${updatedLocation?.subThoroughfare}\n"
-          "${updatedLocation?.locality}\n"
-          "${updatedLocation?.subLocality}\n"
-          "${updatedLocation?.postalCode}\n"
-          "${updatedLocation?.isoCountryCode}\n"
-          "${updatedLocation?.country}\n";
+          "Name : ${updatedLocation?.name}\n"
+          "LocationId : ${updatedLocation?.locationId}\n"
+          "Street : ${updatedLocation?.street}\n"
+          "AdministrativeArea : ${updatedLocation?.administrativeArea}\n"
+          "SubAdministrativeArea : ${updatedLocation?.subAdministrativeArea}\n"
+          "Thoroughfare : ${updatedLocation?.thoroughfare}\n"
+          "SubThoroughfare : ${updatedLocation?.subThoroughfare}\n"
+          "Locality : ${updatedLocation?.locality}\n"
+          "SubLocality : ${updatedLocation?.subLocality}\n"
+          "PostalCode : ${updatedLocation?.postalCode}\n"
+          "IsoCountryCode : ${updatedLocation?.isoCountryCode}\n"
+          "Country ${updatedLocation?.country}\n";
       setState(() {_message = "Welcome\nYour Current location:\n$locationDetails\n";});
     }catch(e){
       setState(() {_message = "Error fetching location: $e";});
@@ -196,28 +199,35 @@ class _HomePageState extends State<HomePage> {
 
 
 
-  /// IF Use Loop >>>>>>>
-  String getLocationName(turf.Position userPosition) {
+  Map<String, dynamic> getLocationInfo(turf.Position userPosition) {
     final polygons = [
-      {"name": "Dhanmondi", "polygon": dhanmondiPolygon},
-      {"name": "Banashree", "polygon": banashreePolygon},
-      {"name": "South Banashree", "polygon": southBanashreePolygon},
-      {"name": "Mirpur", "polygon": mirpurPolygon},
-      {"name": "Badda", "polygon": baddaPolygon},
+      {"name": "Dhanmondi", "locationId": 8, "polygon": dhanmondiPolygon},
+      {"name": "Banashree", "locationId": 9, "polygon": banashreePolygon},
+      {"name": "South Banashree", "locationId": 10, "polygon": southBanashreePolygon},
+      {"name": "Mirpur", "locationId": 11, "polygon": mirpurPolygon},
+      {"name": "Badda", "locationId": 12, "polygon": baddaPolygon},
     ];
 
     for (final items in polygons) {
 
       final String name = items["name"] as String;
+      final int locationId = items["locationId"] as int;
       final turf.GeoJSONObject polygon = items["polygon"] as turf.GeoJSONObject;
 
       if (booleanPointInPolygon(userPosition, polygon)) {
-        return name;
+        return {
+          "name": name,
+          "locationId": locationId,
+        };
       }
-
     }
-    return "Location Not Found";
+
+    return {
+      "name": "Out Of Dhaka City",
+      "locationId": 13,
+    };
   }
+
 
 
 
@@ -242,7 +252,7 @@ class _HomePageState extends State<HomePage> {
 
                 Text(_message,style: TextStyle(fontSize: 20),),
                 SizedBox(height: 30,),
-                Text("${updatedLocation?.name}",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.blue),),
+                Text("${updatedLocation?.name}\n${updatedLocation?.locationId}",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.blue),textAlign: TextAlign.center,),
 
                 SizedBox(height: 20,),
 

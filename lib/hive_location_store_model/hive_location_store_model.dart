@@ -44,6 +44,9 @@ class HiveLocationStoreModel extends HiveObject{
   @HiveField(12)
   double? longitude;
 
+  @HiveField(13)
+  int? locationId;
+
 
   HiveLocationStoreModel({
     this.name,
@@ -59,6 +62,7 @@ class HiveLocationStoreModel extends HiveObject{
     this.country,
     this.latitude,
     this.longitude,
+    this.locationId
   });
 
 }

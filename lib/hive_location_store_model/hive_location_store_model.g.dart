@@ -31,13 +31,14 @@ class HiveLocationStoreModelAdapter
       country: fields[10] as String?,
       latitude: fields[11] as double?,
       longitude: fields[12] as double?,
+      locationId: fields[13] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, HiveLocationStoreModel obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -63,7 +64,9 @@ class HiveLocationStoreModelAdapter
       ..writeByte(11)
       ..write(obj.latitude)
       ..writeByte(12)
-      ..write(obj.longitude);
+      ..write(obj.longitude)
+      ..writeByte(13)
+      ..write(obj.locationId);
   }
 
   @override
