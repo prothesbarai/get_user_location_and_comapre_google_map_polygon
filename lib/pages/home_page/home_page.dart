@@ -207,11 +207,14 @@ class _HomePageState extends State<HomePage> {
     ];
 
     for (final items in polygons) {
+
       final String name = items["name"] as String;
       final turf.GeoJSONObject polygon = items["polygon"] as turf.GeoJSONObject;
+
       if (booleanPointInPolygon(userPosition, polygon)) {
         return name;
       }
+
     }
     return "Location Not Found";
   }
