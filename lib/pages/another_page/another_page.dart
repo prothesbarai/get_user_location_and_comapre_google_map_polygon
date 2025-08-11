@@ -42,7 +42,7 @@ class _AnotherPageState extends State<AnotherPage> {
         "countryCode": countryCode,
       }),
     );
-    
+
     lastLocationId = locationId;
 
     if(response.statusCode == 302){

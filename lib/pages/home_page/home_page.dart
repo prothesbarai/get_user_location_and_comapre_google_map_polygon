@@ -269,7 +269,7 @@ class _HomePageState extends State<HomePage> {
 
                     ElevatedButton(
                         onPressed: fetchLocation,
-                        child: Text("Update")
+                        child: Text("Update Location")
                     ),
 
                     ElevatedButton(
