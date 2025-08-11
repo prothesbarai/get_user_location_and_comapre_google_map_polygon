@@ -49,28 +49,64 @@ ___
         var data = JSON.parse(e.postData.contents);
         var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('MySheet');
     
+        // হেডার চেক (১ম সারি, ৬ কলাম)
+        var header = sheet.getRange(1, 1, 1, 6).getValues()[0];
+        var expectedHeader = ["Name", "Latitude", "Longitude", "LocationName", "LocationId", "CountryCode"];
+        var headerMismatch = false;
+    
+        for (var i = 0; i < expectedHeader.length; i++) {
+          if (header[i] !== expectedHeader[i]) {
+            headerMismatch = true;
+            break;
+          }
+        }
+    
+        if (headerMismatch) {
+          sheet.getRange(1, 1, 1, 6).setValues([expectedHeader]);
+        }
+    
         var lastRow = sheet.getLastRow();
-        var allData = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
+        var allData = [];
+    
+        if (lastRow > 1) {
+          allData = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
+        }
+    
+        // helper function: string এ কনভার্ট করে ট্রিম করবে
+        function clean(val) {
+          if (val === null || val === undefined) return "";
+          return String(val).trim();
+        }
+    
+        // ইনকামিং ডাটা ক্লিন করা
+        var incoming = [
+          clean(data.name),
+          clean(data.latitude),
+          clean(data.longitude),
+          clean(data.locationName),
+          clean(data.locationId),
+          clean(data.countryCode)
+        ];
     
         var duplicateRow = null;
     
         for (var i = 0; i < allData.length; i++) {
-          var row = allData[i];
-          if (
-            row[0] === data.name &&
-            row[1] === data.latitude &&
-            row[2] === data.longitude &&
-            row[3] === data.locationName &&
-            row[4] === data.locationId &&
-            row[5] === data.countryCode
-          ) {
-            duplicateRow = i + 2; // +2 কারণ ডাটা ২য় সারো থেকে শুরু হয়েছে
+          var row = allData[i].map(clean); // শিটের রোও ট্রিম ও স্ট্রিং করা
+          var isSame = true;
+          for (var j = 0; j < 6; j++) {
+            if (row[j] !== incoming[j]) {
+              isSame = false;
+              break;
+            }
+          }
+          if (isSame) {
+            duplicateRow = i + 2;
             break;
           }
         }
     
         if (duplicateRow !== null) {
-          // ডুপ্লিকেট মিলে গেলে ঐ row-তে আপডেট করো
+          // ডুপ্লিকেট হলে আপডেট করো (তুমি চাইলে আপডেট না করেও পারো)
           sheet.getRange(duplicateRow, 1).setValue(data.name);
           sheet.getRange(duplicateRow, 2).setValue(data.latitude);
           sheet.getRange(duplicateRow, 3).setValue(data.longitude);
@@ -91,11 +127,11 @@ ___
     
           return ContentService.createTextOutput(JSON.stringify({status: "inserted", row: newRow})).setMimeType(ContentService.MimeType.JSON);
         }
+    
       } catch (err) {
         return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.message})).setMimeType(ContentService.MimeType.JSON);
       }
     }
-
 ```
 - প্রথমে allData তে সব ডাটা নিয়ে আসলাম।
 - তারপর চেক করলাম, আগের ডাটা এর সাথে কি পুরো মিল আছে।
