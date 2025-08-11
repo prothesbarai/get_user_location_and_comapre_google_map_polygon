@@ -104,6 +104,21 @@ ___
             break;
           }
         }
+        
+        
+        
+        /*
+        // ★★ important part: If You Only Duplicate Check by LocationId ★★ Replace Only For Loop.. Other Condition Same to same
+        for (var i = 0; i < allData.length; i++) {
+          var rowLocationId = clean(allData[i][4]); // ৫ম কলাম = LocationId
+          if (rowLocationId === incoming[4]) {
+            duplicateRow = i + 2;  // শীটে রো নম্বর
+            break;
+          }
+        }
+        */
+        
+        
     
         if (duplicateRow !== null) {
           // ডুপ্লিকেট হলে আপডেট করো (তুমি চাইলে আপডেট না করেও পারো)
