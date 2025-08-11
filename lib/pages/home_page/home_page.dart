@@ -205,7 +205,7 @@ class _HomePageState extends State<HomePage> {
       return {"name": "Out Of Dhaka City", "locationId": 13,};
     }
   }*/
-  
+
 
   Map<String, dynamic> getLocationInfo(turf.Position userPosition) {
     final polygons = [
