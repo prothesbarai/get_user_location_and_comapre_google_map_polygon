@@ -22,7 +22,6 @@ class AnotherPage extends StatefulWidget {
 
 class _AnotherPageState extends State<AnotherPage> {
   bool _isLoading = false;
-  int count = 0;
   String? lastLocationId;
 
 
@@ -43,8 +42,7 @@ class _AnotherPageState extends State<AnotherPage> {
         "countryCode": countryCode,
       }),
     );
-
-    count++;
+    
     lastLocationId = locationId;
 
     if(response.statusCode == 302){
