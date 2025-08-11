@@ -274,7 +274,7 @@ class _HomePageState extends State<HomePage> {
 
                     ElevatedButton(
                         onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => AnotherPage(),));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => AnotherPage(latitude: "${updatedLocation?.latitude}",longitude: "${updatedLocation?.longitude}",countryCode: "${updatedLocation?.isoCountryCode}",),));
                         },
                         child: Text("Next Page")
                     )

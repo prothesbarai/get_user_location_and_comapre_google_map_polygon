@@ -6,7 +6,15 @@ import 'package:provider/provider.dart';
 import '../../provider/location_provider.dart';
 
 class AnotherPage extends StatefulWidget {
-  const AnotherPage({super.key});
+  final String latitude;
+  final String longitude;
+  final String countryCode;
+  const AnotherPage({
+    super.key,
+    required this.latitude,
+    required this.longitude,
+    required this.countryCode,
+  });
 
   @override
   State<AnotherPage> createState() => _AnotherPageState();
@@ -14,22 +22,30 @@ class AnotherPage extends StatefulWidget {
 
 class _AnotherPageState extends State<AnotherPage> {
   bool _isLoading = false;
+  int count = 0;
+  String? lastLocationId;
 
 
 
-  Future<void> sendToGoogleSheet(String name, String email, String message) async {
+  Future<void> sendToGoogleSheet(String name, String latitude, String longitude, String locationName, String locationId, String countryCode) async {
     setState(() {_isLoading = true;});
 
-    final url = Uri.parse("https://script.google.com/macros/s/AKfycby7wXb0MWAlZPKLpkpgh-J7NvgPZbmCIy8c5BjiO13HqS-uCZYKeyNlCKuU3Dh1uEwaww/exec");
+    final url = Uri.parse("https://script.google.com/macros/s/AKfycbxDGJuGVaRg_9ObbAg8NnSVRqtWQds-CjJKLVGQ_stQxFg6GsjMnTilEsEu68dlnwVJ-Q/exec");
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "name": name,
-        "email": email,
-        "message": message,
+        "latitude": latitude,
+        "longitude": longitude,
+        "locationName": locationName,
+        "locationId": locationId,
+        "countryCode": countryCode,
       }),
     );
+
+    count++;
+    lastLocationId = locationId;
 
     if(response.statusCode == 302){
       if(mounted){
@@ -38,19 +54,32 @@ class _AnotherPageState extends State<AnotherPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle_outline_rounded),
-                  SizedBox(width: 10,),
-                  Text('Update'),
+                  Column(
+                    children: [
+                      Icon(Icons.check_circle_outline_rounded,color: Colors.green,),
+                      SizedBox(height: 10,),
+                      Text('Update'),
+                    ],
+                  )
                 ],
               ),
-              content: Text('Successfully Update Data'),
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Successfully Update Data'),
+                ],
+              ),
               actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {Navigator.of(context).pop();},
+                      child: Text('OK'),
+                    ),
+                  ],
                 ),
               ],
             );
@@ -67,6 +96,8 @@ class _AnotherPageState extends State<AnotherPage> {
   Widget build(BuildContext context) {
 
     final locationProvider = Provider.of<LocationProvider>(context);
+    final name = "Prothes Barai";
+    bool isSameLocation = lastLocationId != null && lastLocationId == locationProvider.locationId.toString();
 
     return Scaffold(
       appBar: CustomAppBar(),
@@ -82,8 +113,10 @@ class _AnotherPageState extends State<AnotherPage> {
                 SizedBox(height: 50,),
 
                 ElevatedButton(
-                    onPressed: (){sendToGoogleSheet("Prothes", "developerProthes@gmail.com", "Test");},
-                    child: _isLoading ? Text("Processing..."):Text("Upload Data")
+                    onPressed: _isLoading || isSameLocation ? null : (){
+                      sendToGoogleSheet(name, widget.latitude, widget.longitude,"${locationProvider.locationName}", "${locationProvider.locationId}",widget.countryCode);
+                    },
+                    child: _isLoading ? Text("Processing..."):Text(isSameLocation ? "Updated" : "Upload Data to Google Sheet"),
                 ),
 
               ],
