@@ -29,7 +29,7 @@ class _AnotherPageState extends State<AnotherPage> {
   Future<void> sendToGoogleSheet(String name, String latitude, String longitude, String locationName, String locationId, String countryCode) async {
     setState(() {_isLoading = true;});
 
-    final url = Uri.parse("https://script.google.com/macros/s/AKfycbxDGJuGVaRg_9ObbAg8NnSVRqtWQds-CjJKLVGQ_stQxFg6GsjMnTilEsEu68dlnwVJ-Q/exec");
+    final url = Uri.parse("https://script.google.com/macros/s/AKfycbyeLRRsvfLKRbpTYmbrZBDmWxpRG_coLUR5PxPg0IXq4OuZUwBUM7Y4fBM0BEwR_qZKnw/exec");
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},

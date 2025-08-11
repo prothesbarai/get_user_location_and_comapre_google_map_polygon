@@ -39,7 +39,74 @@ ___
       }
     }
 ```
+---
+# OR
+---
+## যদি ডুপ্লিকেট পাওয়া যায়, তখন ঐ row-তে আপডেট হবে; আর যদি না থাকে, তাহলে নতুন একটা row-তে ডাটা ঢুকবে।
+```javascript
+    function doPost(e) {
+      try {
+        var data = JSON.parse(e.postData.contents);
+        var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('MySheet');
+    
+        var lastRow = sheet.getLastRow();
+        var allData = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
+    
+        var duplicateRow = null;
+    
+        for (var i = 0; i < allData.length; i++) {
+          var row = allData[i];
+          if (
+            row[0] === data.name &&
+            row[1] === data.latitude &&
+            row[2] === data.longitude &&
+            row[3] === data.locationName &&
+            row[4] === data.locationId &&
+            row[5] === data.countryCode
+          ) {
+            duplicateRow = i + 2; // +2 কারণ ডাটা ২য় সারো থেকে শুরু হয়েছে
+            break;
+          }
+        }
+    
+        if (duplicateRow !== null) {
+          // ডুপ্লিকেট মিলে গেলে ঐ row-তে আপডেট করো
+          sheet.getRange(duplicateRow, 1).setValue(data.name);
+          sheet.getRange(duplicateRow, 2).setValue(data.latitude);
+          sheet.getRange(duplicateRow, 3).setValue(data.longitude);
+          sheet.getRange(duplicateRow, 4).setValue(data.locationName);
+          sheet.getRange(duplicateRow, 5).setValue(data.locationId);
+          sheet.getRange(duplicateRow, 6).setValue(data.countryCode);
+    
+          return ContentService.createTextOutput(JSON.stringify({status: "updated", row: duplicateRow})).setMimeType(ContentService.MimeType.JSON);
+        } else {
+          // নতুন row এ ডাটা ঢোকাও
+          var newRow = lastRow + 1;
+          sheet.getRange(newRow, 1).setValue(data.name);
+          sheet.getRange(newRow, 2).setValue(data.latitude);
+          sheet.getRange(newRow, 3).setValue(data.longitude);
+          sheet.getRange(newRow, 4).setValue(data.locationName);
+          sheet.getRange(newRow, 5).setValue(data.locationId);
+          sheet.getRange(newRow, 6).setValue(data.countryCode);
+    
+          return ContentService.createTextOutput(JSON.stringify({status: "inserted", row: newRow})).setMimeType(ContentService.MimeType.JSON);
+        }
+      } catch (err) {
+        return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.message})).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
 
+```
+- প্রথমে allData তে সব ডাটা নিয়ে আসলাম।
+- তারপর চেক করলাম, আগের ডাটা এর সাথে কি পুরো মিল আছে।
+- যদি মিলে যায়, duplicateRow সেট করলাম ঐ row নম্বর (Google Sheet এ ২য় সারো থেকে ডাটা শুরু তাই i+2)।
+- ডুপ্লিকেট থাকলে ঐ row-তে ডাটা আপডেট করলাম।
+- না থাকলে, নতুন row (lastRow + 1) তে ডাটা ঢুকালাম।
+- রেসপন্সে status এবং row নম্বর JSON আকারে রিটার্ন করলাম।
+
+
+---
+---
 - Add This Code Android Studio.
 
 ```dart
