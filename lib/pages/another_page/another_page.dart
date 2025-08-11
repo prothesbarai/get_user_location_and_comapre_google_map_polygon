@@ -20,7 +20,7 @@ class _AnotherPageState extends State<AnotherPage> {
   Future<void> sendToGoogleSheet(String name, String email, String message) async {
     setState(() {_isLoading = true;});
 
-    final url = Uri.parse("https://script.google.com/macros/s/AKfycbyyHS23aLYiXfmgH-XbbIASbwaLhZ9SAgi7SwwbamE20rUs2aYeuWZEXdouytkiDXOb-w/exec");
+    final url = Uri.parse("https://script.google.com/macros/s/AKfycby7wXb0MWAlZPKLpkpgh-J7NvgPZbmCIy8c5BjiO13HqS-uCZYKeyNlCKuU3Dh1uEwaww/exec");
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},

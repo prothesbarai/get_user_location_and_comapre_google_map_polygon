@@ -23,9 +23,16 @@ ___
 ```javascript
     function doPost(e) {
       try {
-        var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
         var data = JSON.parse(e.postData.contents);
-        sheet.appendRow([data.name, data.email, data.message]);
+        var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('MySheet');
+    
+        // ধরো name, email, message কলাম যথাক্রমে ১, 2, 3 কলামে রাখতে চাই  (row 2 থেকে শুরু)
+        var lastRow = sheet.getLastRow() + 1; 
+    
+        sheet.getRange(lastRow, 1).setValue(data.name);
+        sheet.getRange(lastRow, 2).setValue(data.email);
+        sheet.getRange(lastRow, 3).setValue(data.message);
+    
         return ContentService.createTextOutput(JSON.stringify({status: "success"})).setMimeType(ContentService.MimeType.JSON);
       } catch (err) {
         return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.message})).setMimeType(ContentService.MimeType.JSON);
