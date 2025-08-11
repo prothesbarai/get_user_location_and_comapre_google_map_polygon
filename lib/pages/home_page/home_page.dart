@@ -135,7 +135,8 @@ class _HomePageState extends State<HomePage> {
     try{
 
       Position position = await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100));
-      final userPosition = turf.Position(position.longitude, position.latitude);
+      //final userPosition = turf.Position(position.longitude, position.latitude);
+      final userPosition = turf.Position(90.367855,23.751722);
 
       final locationInfo = getLocationInfo(userPosition);
 
@@ -204,8 +205,7 @@ class _HomePageState extends State<HomePage> {
       return {"name": "Out Of Dhaka City", "locationId": 13,};
     }
   }*/
-
-
+  
 
   Map<String, dynamic> getLocationInfo(turf.Position userPosition) {
     final polygons = [
