@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -24,6 +26,7 @@ class _HomePageState extends State<HomePage> {
 
   String _message = "Loading...";
   bool _isLoading = false;
+  bool permissionGranted = false;
   late Box ifStoreLocation;
   late Box locationBox;
 
@@ -41,8 +44,9 @@ class _HomePageState extends State<HomePage> {
     ifStoreLocation = Hive.box("IFStoreLocation");
     locationBox = Hive.box<HiveLocationStoreModel>("StoreUserLocation");
 
-    bool permissionGranted = await handelLocationPermission();
-    if(!permissionGranted) return;
+    permissionGranted  = await handelLocationPermission();
+    setState(() {});
+    if(!permissionGranted ) return;
 
     bool isFirstTime = ifStoreLocation.get('first_time',defaultValue: true);
     if(isFirstTime){
@@ -76,56 +80,25 @@ class _HomePageState extends State<HomePage> {
   Future<bool> handelLocationPermission() async{
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if(!serviceEnabled){
-      setState(() {_message = "Location services are disabled.";});
-      if(mounted){
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text("Location Disabled"),
-                content: Text("Please enable location services."),
-                actions: [
-                  ElevatedButton(
-                    child: Text("OK"),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              );
-            },
-        );
-      }
+      _deniedWarning("Your location services are disabled.");
       return false;
     }
+
     LocationPermission permission = await Geolocator.checkPermission();
 
     if(permission == LocationPermission.denied){
       permission = await Geolocator.requestPermission();
       if(permission == LocationPermission.denied){
-        setState(() {_message = "Location permission denied.";});
+        _deniedWarning("Your location permission denied.");
         return false;
       }
     }
+
     if(permission == LocationPermission.deniedForever){
-      setState(() {_message = "Permission permanently denied. Please enable manually.";});
-      if(mounted){
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text("Permission Required"),
-                content: Text("Please enable location permission from device settings."),
-                actions: [
-                  ElevatedButton(
-                    child: Text("OK"),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              );
-            },
-        );
-      }
+      _deniedWarning("Your location permission permanently denied. Please enable manually.");
       return false;
     }
+
     return true;
   }
 
@@ -240,6 +213,45 @@ class _HomePageState extends State<HomePage> {
 
 
 
+  /// >>>  If User Denied Permission Show Pop Up
+
+  void _deniedWarning(String description){
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.location_on_outlined,color: Colors.pink,),
+              SizedBox(width: 5,),
+              Text("Permission Required",textAlign: TextAlign.center,style: TextStyle(color: Colors.pink),),
+            ],
+          ),
+          content: Text(description,textAlign: TextAlign.center,style: TextStyle(color: Colors.blue,fontWeight: FontWeight.w700,fontSize: 16),),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                    onPressed: (){
+                      Navigator.of(context).pop();
+                      Future.delayed(Duration(milliseconds: 5), () {
+                        exit(0);
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue
+                    ),
+                    child: Text("Ok",style: TextStyle(color: Colors.white),)
+                )
+              ],
+            )
+          ],
+        ),
+    );
+  }
+
+
 
 
   @override
@@ -247,12 +259,15 @@ class _HomePageState extends State<HomePage> {
 
     HiveLocationStoreModel? updatedLocation = locationBox.get("store_location");
 
+    if (!permissionGranted || _isLoading) {
+      return Scaffold(body: Center(child: CircularProgressIndicator()),);
+    }
+
     return Scaffold(
       appBar: CustomAppBar(),
       drawer: CustomDrawer(),
       body: SafeArea(
-          child: _isLoading ? Center(child: CircularProgressIndicator(),):
-          Center(
+          child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -277,8 +292,7 @@ class _HomePageState extends State<HomePage> {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => AnotherPage(latitude: "${updatedLocation?.latitude}",longitude: "${updatedLocation?.longitude}",countryCode: "${updatedLocation?.isoCountryCode}",),));
                         },
                         child: Text("Next Page")
-                    )
-
+                    ),
                   ],
                 )
 
