@@ -51,6 +51,9 @@ dependencies:
 
 
 
+  # Future User Photo Update Purpose
+  image_picker: ^1.1.2
+
 
 dev_dependencies:
   flutter_test:

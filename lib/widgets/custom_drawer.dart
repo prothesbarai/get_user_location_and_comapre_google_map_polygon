@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:locationcomparewithcoordinates/pages/edit_profile_page/edit_profile_page.dart';
 import 'package:locationcomparewithcoordinates/utils/app_color.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -7,19 +8,65 @@ class CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Colors.blueGrey,
+      child: Stack(
+        children: [
 
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: SweepGradient(
-              colors: AppColor.colorArray,
-              center: AlignmentDirectional(1, -1),
-              stops: [0.0, 0.2, 0.2, 0.3, 0.3, 0.4,0.4,0.6,0.6,8.0,8.0,0.9,1.0],
-              startAngle: 0.9,
-              endAngle: 6,
-          )
-        ),
+          Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                    gradient: SweepGradient(
+                      colors: AppColor.colorArray,
+                      center: AlignmentDirectional(1, -1),
+                      stops: [0.0, 0.2, 0.2, 0.3, 0.3, 0.4,0.4,0.6,0.6,8.0,8.0,0.9,1.0],
+                      startAngle: 0.9,
+                      endAngle: 6,
+                    )
+                ),
+              ),
+              Container(color: Colors.black.withValues(alpha: 0.6),)
+            ],
+          ),
 
+          ListView(
+            children: [
+              DrawerHeader(
+                margin: EdgeInsets.zero,
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                decoration: UnderlineTabIndicator(borderSide: BorderSide.none),
+                child: GestureDetector(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfilePage(),));
+                  },
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.black.withValues(alpha: 0.2),
+                        radius: 40,
+                      ),
+                      SizedBox(width: 10,),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+
+                          Text("Name",style: TextStyle(color: Colors.white),),
+                          Text("012xxxxxxxxxxxx",style: TextStyle(color: Colors.white),)
+
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+
+
+        ],
       ),
+
 
     );
   }
