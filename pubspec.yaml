@@ -42,6 +42,7 @@ dependencies:
   provider: ^6.1.5
   http: ^1.5.0
 
+
   # For Location Tracking
   geolocator: ^14.0.2
   geocoding: ^4.0.0
