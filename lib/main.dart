@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:locationcomparewithcoordinates/pages/home_page/home_page.dart';
 import 'package:locationcomparewithcoordinates/provider/location_provider.dart';
+import 'package:locationcomparewithcoordinates/provider/user_profile_image_provider.dart';
 import 'package:locationcomparewithcoordinates/services/hive_services.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +12,7 @@ void main() async{
     MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => LocationProvider()),
+          ChangeNotifierProvider(create: (_) => UserProfileImageProvider()),
         ],
       child: const MyApp(),
     )

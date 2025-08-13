@@ -11,6 +11,7 @@ class HiveServices {
     Hive.registerAdapter(HiveLocationStoreModelAdapter());
     await Hive.openBox("IFStoreLocation");
     await Hive.openBox<HiveLocationStoreModel>("StoreUserLocation");
+    await Hive.openBox("StoreUserImage");
   }
 
 

@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:locationcomparewithcoordinates/pages/edit_profile_page/edit_profile_page.dart';
 import 'package:locationcomparewithcoordinates/utils/app_color.dart';
+import 'package:provider/provider.dart';
+
+import '../provider/user_profile_image_provider.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+
+    final imageProvider = Provider.of<UserProfileImageProvider>(context);
+
     return Drawer(
       backgroundColor: Colors.blueGrey,
       child: Stack(
@@ -37,13 +43,16 @@ class CustomDrawer extends StatelessWidget {
                 decoration: UnderlineTabIndicator(borderSide: BorderSide.none),
                 child: GestureDetector(
                   onTap: (){
+                    Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfilePage(),));
                   },
                   child: Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor: Colors.black.withValues(alpha: 0.2),
                         radius: 40,
+                        backgroundColor: Colors.blue,
+                        backgroundImage: (imageProvider.profileImage) != null ? FileImage(imageProvider.profileImage!) : null,
+                        child: (imageProvider.profileImage == null) ? Icon(Icons.person, size: 50, color: Colors.white) : null,
                       ),
                       SizedBox(width: 10,),
                       Column(
