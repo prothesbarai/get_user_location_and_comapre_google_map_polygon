@@ -22,7 +22,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   File? profileImage;
   final ImagePicker _imagePicker = ImagePicker();
-
+  
   Future<void> pickImage(ImageSource source) async {
     try {
       final imageProvider = Provider.of<UserProfileImageProvider>(context, listen: false);
@@ -63,11 +63,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       );
 
 
-      // >>> If Not Crop Image Stop Here
+      /// >>> If Not Crop Image Stop Here
       if (croppedFile == null) return;
 
 
-      // >>> Print cropped file size
+      /// >>> Print cropped file size
       int croppedSize = await File(croppedFile.path).length();
       if (kDebugMode) {
         print("Cropped Image Size: ${croppedSize / 1024} KB");
@@ -81,7 +81,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       if (compressedFile == null) return;
 
-      // >>> Print compressed file size
+      /// >>> Print compressed file size
       int compressedSize = await compressedFile.length();
       if (kDebugMode) {
         print("Compressed Image Size: ${compressedSize / 1024} KB");
@@ -90,17 +90,30 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       int fileSize = await compressedFile.length();
       if (fileSize > (300 * 1024)) {
-        // Try compress again if larger than 300KB
+        /// Try compress again if larger than 300KB
         final compressedAgain = await FlutterImageCompress.compressAndGetFile(croppedFile.path, targetPath, quality: 50, minWidth: 512, minHeight: 512,);
         if (compressedAgain != null) {
-          profileImage = File(compressedAgain.path);
-          setState((){});
-          await imageProvider.setProfileImage(profileImage!);
+
+          /// If Store Image in Hive Your Need Permanent Directory and set Path and Store This Path
+          final appDir = await getApplicationDocumentsDirectory();
+          final permanentPath = '${appDir.path}/profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+          await compressedAgain.saveTo(permanentPath);
+          final permanentFile = File(permanentPath);
+          profileImage = permanentFile;
+          setState(() {});
+          await imageProvider.setProfileImage(permanentFile);
+
         }
       } else {
-        profileImage = File(compressedFile.path);
-        setState((){});
-        await imageProvider.setProfileImage(profileImage!);
+
+        /// If Store Image in Hive Your Need Permanent Directory and set Path and Store This Path
+        final appDir = await getApplicationDocumentsDirectory();
+        final permanentPath = '${appDir.path}/profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        await compressedFile.saveTo(permanentPath);
+        final permanentFile = File(permanentPath);
+        profileImage = permanentFile;
+        setState(() {});
+        await imageProvider.setProfileImage(permanentFile);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -134,7 +147,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       radius: 150,
                       backgroundColor: Colors.blue,
                       backgroundImage: imageProvider.profileImage != null ? FileImage(imageProvider.profileImage!) : (profileImage != null) ? FileImage(profileImage!) : null,
-                      child: (profileImage == null && imageProvider.profileImage == null) ? Icon(Icons.person, size: 50, color: Colors.white) : null,
+                      child: ( imageProvider.profileImage == null && profileImage == null) ? Icon(Icons.person, size: 50, color: Colors.white) : null,
                     ),
                   ),
 
@@ -167,7 +180,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
 
                   SizedBox(height: 20,),
-
 
                   if(imageProvider.profileImage != null)...[
                     ElevatedButton(
